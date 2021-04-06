@@ -4,11 +4,11 @@ from sklearn.metrics.pairwise import linear_kernel
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import zipfile
-
+import re
 
 def get_data():
-
-        movie_data = pd.read_csv('dataset/booksdata.csv.zip')
+        zf = zipfile.ZipFile('E:/input/booksdata.zip') 
+        movie_data = pd.read_csv(zf.open('booksdata.csv'))
         movie_data['original_title'] = movie_data['original_title'].str.lower()
         return movie_data
 
@@ -41,15 +41,27 @@ def recommend_movies(title, books,cosine_sim_corpus):
 
 
 def results(movie_name):
-        movie_name = movie_name.lower()
-
         find_movie = get_data()
         combine_result = combine_data(find_movie)
         transform_result = transform_data(combine_result,find_movie)
-
-        if movie_name not in find_movie['original_title'].unique():
+        l1=list(find_movie['title'])
+        l3=list(find_movie['original_title'])
+        #print(l1)
+        l2=[]
+        for i,j in zip(l1,l3):
+            try:
+                x = re.findall(movie_name.lower(), i.lower())
+                if x:
+                    l2.append(j)
+                   
+                    
+            except:
+                continue;
+        print(l2)
+        
+        if not l2:
                 return 'Book not in Database'
 
         else:
-                recommendations = recommend_movies(movie_name, find_movie,transform_result)
-                return recommendations.to_dict('records')
+            recommendations = recommend_movies(l2[0], find_movie,transform_result)
+            return recommendations.to_dict('records')
