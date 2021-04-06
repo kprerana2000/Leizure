@@ -4,12 +4,12 @@ from sklearn.metrics.pairwise import linear_kernel
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import zipfile
-import re
+
 
 def get_data():
-        zf = zipfile.ZipFile('E:/input/booksdata.zip') 
-        movie_data = pd.read_csv(zf.open('booksdata.csv'))
-        movie_data['title'] = movie_data['title'].str.lower()
+
+        movie_data = pd.read_csv('dataset/booksdata.csv.zip')
+        movie_data['original_title'] = movie_data['original_title'].str.lower()
         return movie_data
 
 def combine_data(books):
@@ -24,8 +24,8 @@ def transform_data(books, data_plot):
 
 
 def recommend_movies(title, books,cosine_sim_corpus):
-        titles = books['title']
-        indices = pd.Series(books.index, index=books['title'])
+        titles = books['original_title']
+        indices = pd.Series(books.index, index=books['original_title'])
         idx = indices[title]
         sim_scores = list(enumerate(cosine_sim_corpus[idx]))
         sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
@@ -46,21 +46,10 @@ def results(movie_name):
         find_movie = get_data()
         combine_result = combine_data(find_movie)
         transform_result = transform_data(combine_result,find_movie)
-        l1=list(find_movie['title'])
-        #print(l1)
-        l2=[]
-        for i in l1:
-            try:
-                x = re.findall(movie_name.lower(), i)
-                if x:
-                    l2.append(i)
-                    
-            except:
-                continue;
-        
-        if not l2:
+
+        if movie_name not in find_movie['original_title'].unique():
                 return 'Book not in Database'
 
         else:
-            recommendations = recommend_movies(l2[0], find_movie,transform_result)
-            return recommendations.to_dict('records')
+                recommendations = recommend_movies(movie_name, find_movie,transform_result)
+                return recommendations.to_dict('records')
