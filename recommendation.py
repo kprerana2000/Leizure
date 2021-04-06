@@ -7,8 +7,7 @@ import zipfile
 import re
 
 def get_data():
-        zf = zipfile.ZipFile('E:/input/booksdata.zip') 
-        movie_data = pd.read_csv(zf.open('booksdata.csv'))
+        movie_data = pd.read_csv('dataset/booksdata.csv.zip')
         movie_data['original_title'] = movie_data['original_title'].str.lower()
         return movie_data
 
